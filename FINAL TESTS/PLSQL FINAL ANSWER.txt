@@ -1,0 +1,133 @@
+ShareKhan, a renowned Share Trading organization, specialized into stock market needs to keep track of stock update and the investors. 
+Follow the instructions to accomplish the relevant tasks:
+
+1)	Create the database tables as per the following:
+
+Stock_Holders
+Column	Type	Constraints
+dmat_acc_no
+Numberic	Primary Key
+holder_name	Character Based	Not Null
+holder_email	Character Based	Not Null
+
+Stocks_Master
+Column	Type	Constraints
+stock_code
+Character Based	Primary Key
+stockl_name	Character Based	Not Null
+stock_price	Numeric	Not Null
+
+Stock_Holdings
+Column	Type	Constraints
+dmat_no
+Numeric	Foreign Key, Not Null
+stock_code
+Character Based	Foreign Key, Not Null
+quantity	Numeric	 Not Null
+
+
+Stock_Updates
+Column	Type	Constraints
+Sr_No	Numeric	Primary Key
+stock_code
+Character Based	Foreign Key, Not Null
+stock_price	Numeric	 Not Null
+update_date	Date	Not Null
+
+ 
+2)	Insert the records into all the tables except Stock_Updates.
+
+
+
+3)	Write a PL/SQL block that creates a function get_Total_Stake_Valuation which accepts a DMat account no of the investor and returns the valuation of the total stakes.
+
+
+
+
+create or replace function get_total(dno number) return number as cursor tvalue
+is
+select sh.quantity*sm.stockprice from stockholding sh,stockmaster sm where sh.stockcode=sm.stockcode and dmatno=dno;
+total number(8);
+val number(8);
+
+begin 
+total:=0;
+val:=0;
+
+open tvalue;
+	loop
+		fetch tvalue into val;
+		exit when tvalue%notfound;
+		total:=total+val;
+		dbms_output.put_line('value added in total - '||total);
+		
+	end loop;
+close tvalue;
+
+dbms_output.put_line('total value of stakes - '||total);
+return total;
+
+end;
+/
+
+
+
+
+
+
+4)	Write a PL/SQL block that creates a procedure update_stock_price which accepts a code of the stock and the new price and updates the record from the Stocks_Master table.
+
+
+create or replace procedure updatestock(scode char,sprice number) as negativeexp exception;
+
+begin  
+
+if sprice<0 then
+ raise negativeexp;
+end if;
+
+update stockmaster set stockprice=sprice where stockcode=scode;
+
+exception
+when no_data_found then
+   dbms_output.put_line('stock code DOES NOT EXISTS !! ');
+	
+when negativeexp then
+  dbms_output.put_line('PRICE is negative !!');
+
+end;
+/
+
+
+
+
+5)	Write a PL/SQL block that creates a trigger as soon as a record from the Stocks_Master table is updated. The trigger must insert a new record entry into Stock_Updates table. The stock_price column of Stock_Updates table should contain the previous value of the stock. Values for Sr_No column of Stock_Updates table should be auto incremented.
+ 
+
+
+create or replace trigger updatestocktrig 
+before update 
+of stockprice
+on stockmaster
+for each row
+
+--declare
+--scode stockmaster.stockcode%type;
+--sprice stockmaster.stockprice%type;
+
+begin 
+
+
+if updating then
+
+--select stockcode,:old.stockprice into scode,sprice from stockmaster where stockcode=''; 
+insert into stockupdates values(seq1.nextval,:old.stockcode,:old.stockprice,sysdate);
+end if;
+end;
+/
+
+
+
+
+
+

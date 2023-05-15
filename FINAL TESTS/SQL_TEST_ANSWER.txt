@@ -1,0 +1,86 @@
+create table car_maker(makerid char(5) constraint makerid_pk primary key,
+  2  makername char(10) constraint makername_not_null not null);
+
+*****************************************************************************************
+create table car_models(modelcode char(12) constraint modelcode_pk primary key,
+  2  modelname char(20) constraint modelname_not_null not null,
+  3  makerid char(5),
+  4  constraint makerid_fk
+  5  foreign key(makerid)
+  6  references
+  7  car_maker(makerid));
+
+*****************************************************************************************
+
+create table car_sales(
+   serialno number(10) constraint serialno_pk primary key,
+   modelcode char(12) constraint modelcode_not_null not null,
+   soldon date,
+   soldat number(10),  
+   constraint modelcode_fk
+   foreign key(modelcode)
+   references
+   car_models(modelcode));
+
+******************************************************************************************
+a--select makername from car_maker order by makername;
+
+
+
+
+
+
+
+
+
+
+
+b-- select modelname,makername from car_models,car_maker where car_models.makerid=car_maker.makerid order by makername desc;
+
+
+
+
+
+
+
+
+
+
+
+C--select makername,modelname from car_maker ck ,car_models cm where ck.makerid=cm.makerid;
+d-- select sum(soldat) from car_sales where soldon between '1-apr-19' and '31-mar-20';
+	SUM(SOLDAT)
+	-----------
+	 2100000
+
+e-- select sum(soldat) from car_sales where soldon between '1-oct-19' and '31-dec-19';
+
+	SUM(SOLDAT)
+	-----------
+        350000
+
+f-- select distinct modelname from car_models where modelcode in (select modelcode from car_sales where soldon between '1-apr-19' and '30-jun-19');
+g--select modelname,count(modelname) from car_sales left join car_models on car_models.modelcode=car_sales.modelcode where soldon between '1-jul-19' and '30-sep-19' group by car_models.modelname ;
+h--select modelname,makername,sum(soldat) from car_maker,car_models,car_sales where car_maker.makerid=car_models.makerid and car_models.modelcode=car_sales.modelcode group by makername,modelname;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
